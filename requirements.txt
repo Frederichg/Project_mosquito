@@ -1,0 +1,15 @@
+# Python dependencies for the ESP32 MQTT Project
+# Install with: pip install -r requirements.txt
+
+# MQTT Client library
+paho-mqtt==1.6.1
+
+# PyQt6 for GUI interface
+PyQt6==6.6.1
+
+# Excel file handling
+pandas==2.1.4
+openpyxl==3.1.2
+
+# Additional utilities
+numpy==1.24.4
