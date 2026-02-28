@@ -1,0 +1,3 @@
+# Wokwi Library Dependencies
+# PubSubClient by Nick O'Leary (MQTT client for Arduino)
+PubSubClient

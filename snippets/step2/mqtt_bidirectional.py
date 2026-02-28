@@ -2,6 +2,9 @@
 Step 2: Python MQTT Bidirectional Communication
 Listens to and sends MQTT messages to 2 ESP32 devices
 Implements both ESPtoPC and PCtoESP communication
+
+Note: QoS 2 is supported by paho-mqtt but NOT by PubSubClient on ESP32.
+      Effective QoS is the minimum of publisher and subscriber, so QoS 1 is used.
 """
 
 import paho.mqtt.client as mqtt
@@ -23,7 +26,8 @@ SEND_TOPICS = {
     "ESP32_2": "mosquito/esp32_2/command"
 }
 
-# Variables to store data from ESP32s
+# Variables to store data from ESP32s (with thread lock)
+_data_lock = threading.Lock()
 ESPtoPC1 = ""
 ESPtoPC2 = ""
 
@@ -40,9 +44,9 @@ class MQTTManager:
         if rc == 0:
             print("Connected to MQTT Broker!")
             self.connected = True
-            # Subscribe to both ESP32 topics with QoS 2
+            # Subscribe to both ESP32 topics with QoS 1
             for esp_name, topic in LISTEN_TOPICS.items():
-                client.subscribe(topic, qos=2)
+                client.subscribe(topic, qos=1)
                 print(f"Subscribed to {topic}")
         else:
             print(f"Failed to connect, return code {rc}")
@@ -59,12 +63,13 @@ class MQTTManager:
         print(f"[{timestamp}] Received from {topic}: {message}")
         
         # Store message in appropriate variable based on topic
-        if topic == LISTEN_TOPICS["ESP32_1"]:
-            ESPtoPC1 = message
-            print(f"ESPtoPC1 updated: {ESPtoPC1}")
-        elif topic == LISTEN_TOPICS["ESP32_2"]:
-            ESPtoPC2 = message
-            print(f"ESPtoPC2 updated: {ESPtoPC2}")
+        with _data_lock:
+            if topic == LISTEN_TOPICS["ESP32_1"]:
+                ESPtoPC1 = message
+                print(f"ESPtoPC1 updated: {ESPtoPC1}")
+            elif topic == LISTEN_TOPICS["ESP32_2"]:
+                ESPtoPC2 = message
+                print(f"ESPtoPC2 updated: {ESPtoPC2}")
 
     def on_disconnect(self, client, userdata, rc):
         """Callback for when the client disconnects from the server."""
@@ -100,8 +105,8 @@ class MQTTManager:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         
         try:
-            # Publish with QoS 2 (exactly once)
-            result = self.client.publish(topic, str(command), qos=2)
+            # Publish with QoS 1 (at least once)
+            result = self.client.publish(topic, str(command), qos=1)
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
                 print(f"[{timestamp}] Sent to {esp_name} ({topic}): {command}")
                 return True
@@ -129,8 +134,9 @@ def user_interface(mqtt_manager):
             if user_input == "quit":
                 break
             elif user_input == "status":
-                print(f"ESPtoPC1: {ESPtoPC1}")
-                print(f"ESPtoPC2: {ESPtoPC2}")
+                with _data_lock:
+                    print(f"ESPtoPC1: {ESPtoPC1}")
+                    print(f"ESPtoPC2: {ESPtoPC2}")
             elif user_input.startswith("1 "):
                 try:
                     number = int(user_input.split()[1])

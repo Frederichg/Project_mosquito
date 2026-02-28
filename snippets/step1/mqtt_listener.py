@@ -1,7 +1,9 @@
 """
 Step 1: Python MQTT Listener (1-way communication)
 Listens to MQTT channels from 2 ESP32 devices
-Uses Paho MQTT client with QoS 2 (exactly once)
+Uses Paho MQTT client with QoS 1 (at least once)
+Note: QoS 2 is supported by paho-mqtt but NOT by PubSubClient on ESP32.
+      Effective QoS is the minimum of publisher and subscriber, so QoS 1 is used.
 """
 
 import paho.mqtt.client as mqtt
@@ -23,9 +25,9 @@ def on_connect(client, userdata, flags, rc):
     """Callback for when the client receives a CONNACK response from the server."""
     if rc == 0:
         print("Connected to MQTT Broker!")
-        # Subscribe to both ESP32 topics with QoS 2
+        # Subscribe to both ESP32 topics with QoS 1
         for esp_name, topic in MQTT_TOPICS.items():
-            client.subscribe(topic, qos=2)
+            client.subscribe(topic, qos=1)
             print(f"Subscribed to {topic}")
     else:
         print(f"Failed to connect, return code {rc}")

@@ -1,0 +1,11 @@
+[wokwi]
+version = 1
+firmware = "sketch.ino"
+elf = ""
+
+# Wokwi IoT Gateway: allows the simulated ESP32 to reach your local network
+# Make sure wokwi-cli gateway is running on your PC.
+# Install: npm i -g @wokwi/wokwi-cli
+# Run:     wokwi-cli gateway
+[wokwi.network]
+gateway = true

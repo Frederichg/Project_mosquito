@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "author": "Project_mosquito",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -60,
+      "left": 150,
+      "attrs": {
+        "color": "blue"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -30,
+      "left": 120,
+      "attrs": {
+        "value": "220"
+      }
+    }
+  ],
+  "connections": [
+    ["esp:2", "r1:1", "blue", ["h10"]],
+    ["r1:2", "led1:A", "blue", ["v0"]],
+    ["led1:C", "esp:GND.1", "black", ["h-20", "v40"]]
+  ],
+  "serialMonitor": {
+    "display": "auto"
+  }
+}

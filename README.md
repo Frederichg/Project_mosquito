@@ -5,6 +5,9 @@ Fadhi and Fred
 ## Overview
 This project implements MQTT communication between multiple ESP32 devices and a Python application with PyQt6 interface.
 
+> **QoS Note:** The SRS specifies QoS 2 (exactly once), but the PubSubClient Arduino library 
+> only supports QoS 0 and QoS 1. All code uses **QoS 1** (at least once) as the best available option.
+
 ## Project Structure
 ```
 Project_mosquito/
@@ -13,9 +16,21 @@ Project_mosquito/
 │   ├── step2/          # Bidirectional communication
 │   ├── step3/          # PyQt6 GUI interface
 │   └── step4/          # GUI with Excel logging
+├── wokwi/
+│   ├── esp32_1/        # Wokwi simulation - ESP32_1
+│   │   ├── diagram.json
+│   │   ├── sketch.ino
+│   │   ├── libraries.txt
+│   │   └── wokwi.toml
+│   └── esp32_2/        # Wokwi simulation - ESP32_2
+│       ├── diagram.json
+│       ├── sketch.ino
+│       ├── libraries.txt
+│       └── wokwi.toml
+├── logs/               # Auto-generated Excel log files
 ├── requirements.txt    # Python dependencies
-├── README.md          # Setup instructions
-└── SRS.md             # Software Requirements Specification
+├── README.md           # Setup instructions
+└── SRS.md              # Software Requirements Specification
 ```
 
 ## Setup Instructions
@@ -51,6 +66,39 @@ You need an MQTT broker. Options:
 - Set unique ESP32 names in EEPROM
 
 ## Running the Project
+
+### Testing without Hardware (Wokwi Simulator)
+
+You can test the full ESP32 ↔ PC communication without any physical hardware using **Wokwi**.
+
+#### Prerequisites
+1. **VS Code** with the [Wokwi extension](https://marketplace.visualstudio.com/items?itemName=wokwi.wokwi-vscode) installed
+2. **Wokwi license** (free for personal/educational use — activate via the extension)
+3. **MQTT broker** running locally (e.g. Mosquitto on port 1883)
+
+#### Quick Start
+```powershell
+# 1. Start your local MQTT broker (if using Mosquitto)
+mosquitto -v
+
+# 2. In VS Code, open wokwi/esp32_1/ folder
+#    Press F1 → "Wokwi: Start Simulator"
+#    The simulated ESP32_1 will connect to WiFi and start publishing MQTT messages.
+
+# 3. Open a second VS Code window, open wokwi/esp32_2/
+#    Press F1 → "Wokwi: Start Simulator"
+
+# 4. In a terminal, run the Python GUI:
+python snippets/step4/pyqt6_interface_with_logging.py
+```
+
+The Wokwi simulated ESP32s connect via the `Wokwi-GUEST` WiFi network and reach your PC's MQTT broker through the Wokwi IoT Gateway. You will see:
+- Random data strings (L1, L2, FP) arriving in the PyQt6 GUI
+- LED blinking in the Wokwi simulator when you send commands from the GUI
+- Excel log files created in the `logs/` folder
+
+> **Note:** If the ESP32 can't reach `host.wokwi.internal`, install and run the Wokwi CLI gateway:
+> `npm i -g @wokwi/wokwi-cli` then `wokwi-cli gateway`
 
 ### Step 1: One-way Communication
 ```powershell

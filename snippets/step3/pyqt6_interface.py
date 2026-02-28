@@ -2,6 +2,8 @@
 Step 3: PyQt6 Interface for MQTT Communication
 Minimal GUI with 2 boxes for ESP32 devices
 Each box shows ESP32 name, last received data, and command entry
+
+Note: Uses QoS 1 because PubSubClient on ESP32 does not support QoS 2.
 """
 
 import sys
@@ -48,7 +50,7 @@ class MQTTWorker(QThread):
             self.connection_status.emit(True)
             # Subscribe to both ESP32 topics
             for esp_name, topic in self.listen_topics.items():
-                client.subscribe(topic, qos=2)
+                client.subscribe(topic, qos=1)
         else:
             self.connected = False
             self.connection_status.emit(False)
@@ -79,7 +81,7 @@ class MQTTWorker(QThread):
         """Send command to specific ESP32"""
         if self.connected and esp_name in self.send_topics:
             topic = self.send_topics[esp_name]
-            self.client.publish(topic, str(command), qos=2)
+            self.client.publish(topic, str(command), qos=1)
             return True
         return False
 
