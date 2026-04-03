@@ -2,6 +2,12 @@
 logs/
 *.log
 
+# PlatformIO generated files
+.pio/
+.piolibdeps/
+.sconsign.dblite
+.sconsign*.dblite
+
 # Python cache and virtual environment
 __pycache__/
 *.py[cod]

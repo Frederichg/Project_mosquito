@@ -18,8 +18,8 @@ NOTE: PubSubClient only supports QoS 0 and QoS 1.
 #define EEPROM_NAME_ADDR 1
 
 // WiFi credentials
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid = "Focal-5G";
+const char* password = "Poodzer11";
 
 // MQTT Broker settings
 const char* mqtt_server = "YOUR_MQTT_BROKER_IP";
